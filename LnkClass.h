@@ -1,6 +1,6 @@
 #pragma once
 #include "lnkStruct.h"
-#include "combaseapi.h";
+#include "combaseapi.h"
 #include <string>
 #include <iostream>
 class LnkClass{

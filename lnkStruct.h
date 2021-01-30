@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <fstream>
+#include <iostream>
 #define HasLinkTargetIDList 0x1
 #define HasLinkInfo 0x2
 #define HasName 0x4
@@ -11,7 +12,6 @@
 #define HasArguments 0x20
 #define HasIconLocation 0x30
 #define IsUnicode 0x40
-
 typedef struct _LNK_HEADER {
 	DWORD headerSize;
 	CLSID LinkCLSID;
@@ -38,6 +38,7 @@ class LnkObject {
 protected:
 public:
 	WORD Size;
+	DWORD DSize;
 	virtual int Write(std::ofstream& ifs)=0;
 };
 
@@ -49,10 +50,20 @@ public:
 	int add(LnkObject* shellItem);
 };
 
+class RootFolderShellItem :public LnkObject {
+public:
+	RootFolderShellItem();
+	BYTE Indicator=0x1F;
+	BYTE SortIndex=0x50;
+	GUID ShellFolder;
+	int Write(std::ofstream& ifs) override;
+};
+
 class VoluteShellItem :public LnkObject {
 public:
+	VoluteShellItem(BYTE Indicator,const char* name);
 	BYTE Indicator;
-	char* name;
+	const char* name;
 	int Write(std::ofstream& ifs) override;
 };
 class Beef0004 :public LnkObject {
@@ -68,23 +79,58 @@ public:
 	WORD longStringSize;
 	DWORD padding3 = 0;
 	const DWORD unknown = 0;
-	char16_t* longStringName;
+	std::string longStringName;
 	WORD offset;
-	Beef0004(FAT_DATE c, FAT_DATE l, char16_t* n);
 	int Write(std::ofstream& ifs) override;
+	Beef0004(FAT_DATE c, FAT_DATE l, std::string n);
+
 };
 
 class FileEntryItem :public LnkObject {
 public:
 	BYTE Indicator;
-	BYTE Padding=0;
+	const BYTE Padding;
 	DWORD FileSize;
 	FAT_DATE lastModify;
 	WORD atrribute;
-	char* PrimaryName;
+	std::string PrimaryName;
+	FileEntryItem(BYTE I, DWORD F, WIN32_FILE_ATTRIBUTE_DATA l, WORD a, std::string P);
 	Beef0004 ex04;
-	FileEntryItem(BYTE I, DWORD F, FAT_DATE l, WORD a, char* P);
+
+	int Write(std::ofstream& ifs) override;
+};
+FAT_DATE TimeToFat(FILETIME& time);
+
+
+class VolumeID :public LnkObject {
+public:
+
+	DWORD DriveType;
+	DWORD DriveSerialNumber;
+	DWORD VolumeLabelOffset;
+	DWORD VolumeLabelOffsetUnicode=0;
+	std::string data;
+	int Write(std::ofstream& ifs) override;
+	VolumeID();
+};
+
+class LinkInfo :public LnkObject {
+public:
+	const DWORD LinkInfoHeaderSize = 0;
+	DWORD LinkInfoFlags;
+	DWORD VolumeIDOffset;
+	DWORD LocalBasePathOffset;
+	DWORD CommonNetworkRelativeLinkOffset;
+	DWORD CommonPathSuffixOffset;
+	DWORD LocalBasePathOffsetUnicode;
+	DWORD CommonPathSuffixOffsetUnicode;
+	VolumeID vol;
+	std::string LocalBasePath;
+	char CommonPathSuffix = '\0';
+	LinkInfo(std::string path);
 	int Write(std::ofstream& ifs) override;
 };
 
+class StringDate :public LnkObject {
 
+};
