@@ -18,7 +18,8 @@ FAT_DATE TimeToFat(FILETIME& time) {
 
 int LinkTargetIDList::Write(std::ofstream& ifs)
 {
-    Size += sizeof(Size) + sizeof(TerminalID);
+    Size += sizeof(TerminalID);
+    std::cout << Size<<"\n";
     ifs.write((char*)&Size, sizeof(Size));
     for (; !shellItem.empty();) {
         (shellItem.top())->Write(ifs);
@@ -36,28 +37,26 @@ int LinkTargetIDList::add(LnkObject* shellItem)
 }
 
 VoluteShellItem::VoluteShellItem(BYTE Indicator, const char* name):Indicator(Indicator),name(name){
-    Size += 3;
-    for (int i = 0; *(name + i) != '\0'; i++) {
-        std::cout << *(name + i)<<"\n";
-        Size += 1;
-    }
-    Size += 1;
+    Size = 0x19;
 }
 
 int VoluteShellItem::Write(std::ofstream& ifs)
 {
+    int s = Size;
+    s -= sizeof(Size);
+    s -= sizeof(Indicator);
     ifs.write((char*)&Size, sizeof(Size));
     ifs.write((char*)&Indicator, sizeof(Indicator));
-    for(int i=0; *(name+i)!='\0'; i++)
+    for(int i=0; *(name+i)!='\0'; i++,s--)
         ifs.write((char*)(name + i), sizeof(char));
 
+    for(;s>0;s--)
     ifs.write((char*)("\0"), sizeof(char));
     return 0;
 }
 
 FileEntryItem::FileEntryItem(BYTE I, DWORD F, WIN32_FILE_ATTRIBUTE_DATA l, WORD a, std::string P):Indicator(I),
 FileSize(F), lastModify(TimeToFat(l.ftLastWriteTime)), atrribute(a), PrimaryName(P),Padding(0), ex04(TimeToFat(l.ftCreationTime), TimeToFat(l.ftLastAccessTime), P) {
-    //;
     Size = 0;
     Size += sizeof(Indicator);
     Size += sizeof(Padding);
@@ -84,14 +83,11 @@ int FileEntryItem::Write(std::ofstream& ifs)
     const char* p = PrimaryName.c_str();
     for (int i = 0; *(p + i) != '\0'; i++) {
         ifs.write((char*)(p + i), sizeof(char));
-        std::cout << *(p + i);
     }
     const char null = '\0';
     ifs.write((char*)&null, sizeof(char));
     if (PrimaryName.length() % 2)
         ifs.write((char*)&null, sizeof(char));
-    std::cout << "\n";
-    std::cout << std::hex;
 
     ex04.Write(ifs);
     return 0;
@@ -202,4 +198,16 @@ CommonNetworkRelativeLinkOffset(0), LocalBasePath(path), CommonPathSuffix('\0')
     DSize = 0;
     DSize += 28+ LocalBasePath.length() + 2+vol.DSize;
     CommonPathSuffixOffset = 0x2D + LocalBasePath.length() + 1;
+}
+
+StringData::StringData(std::u16string str):str(str)
+{
+    CountCharacters = str.length();
+}
+
+int StringData::Write(std::ofstream& ifs)
+{
+    ifs.write((char*)&CountCharacters, sizeof(CountCharacters));
+    ifs.write((char*)str.c_str(), str.size()*2);
+    return 0;
 }

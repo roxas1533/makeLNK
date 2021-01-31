@@ -10,8 +10,17 @@
 #define HasRelativePath 0x8
 #define HasWorkingDir 0x10
 #define HasArguments 0x20
-#define HasIconLocation 0x30
-#define IsUnicode 0x40
+#define HasIconLocation 0x40
+#define IsUnicode 0x80
+
+#define FILE_ATTRIBUTE_READONLY 0x1
+#define FILE_ATTRIBUTE_HIDDEN 0x2
+#define FILE_ATTRIBUTE_SYSTEM 0x4
+#define FILE_ATTRIBUTE_DIRECTORY 0x10
+#define HasArguments 0x20
+#define FILE_ATTRIBUTE_ARCHIVE 0x40
+
+
 typedef struct _LNK_HEADER {
 	DWORD headerSize;
 	CLSID LinkCLSID;
@@ -37,8 +46,8 @@ typedef struct _FAT_DATE {
 class LnkObject {
 protected:
 public:
-	WORD Size;
-	DWORD DSize;
+	WORD Size=0;
+	DWORD DSize=0;
 	virtual int Write(std::ofstream& ifs)=0;
 };
 
@@ -131,6 +140,10 @@ public:
 	int Write(std::ofstream& ifs) override;
 };
 
-class StringDate :public LnkObject {
-
+class StringData :public LnkObject {
+public:
+	WORD CountCharacters;
+	std::u16string str;
+	StringData(std::u16string str);
+	int Write(std::ofstream& ifs) override;
 };

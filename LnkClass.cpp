@@ -3,10 +3,39 @@
 #include <fstream>
 #include <filesystem>
 
-
+std::filesystem::path getRelativePath(std::filesystem::path p, std::filesystem::path n) {
+	//std::cout << <<"\n";
+	//std::filesystem::path copyN = n;
+	//std::stack<std::string> cp;
+	//std::stack<std::string> cn;
+	//std::string relativePath="";
+	//std::string basePath = "";
+	//for (;p.root_path().string()!=p.string();) {
+	//	cp.push(p.filename().string());
+	//	p = p.parent_path();
+	//}
+	//cp.push(p.root_name().string());
+	//for (; n.root_path().string() != n.string();) {
+	//	cn.push(n.filename().string());
+	//	n = n.parent_path();
+	//}
+	//cn.push(n.root_name().string());
+	//for (; cp.top() == cn.top();  basePath += cp.top() + "\\",cp.pop(), cn.pop());
+	//basePath.erase(--basePath.end());
+	//std::cout << copyN.string()<<"\n";
+	//std::cout << basePath <<"\n";
+	//std::cout << std::filesystem::relative(std::filesystem::path(basePath), copyN).string();
+	////for(;!cp.empty(); relativePath += cp.top() + "\\",cp.pop());
+	////relativePath.erase(--relativePath.end());
+	return std::filesystem::relative(p, n);
+}
 void makeLNK(DWORD linkflag, DWORD fileAttribute, std::string path,std::string LnkPath) {
 	WIN32_FILE_ATTRIBUTE_DATA fileData;
-	std::cout << path<<"\n";
+	if (!std::filesystem::path(LnkPath).is_absolute()) {
+		char dir[MAX_PATH];
+		GetCurrentDirectoryA(MAX_PATH, dir);
+		LnkPath=std::string(std::string(dir)+"\\"+LnkPath);
+	}
 	if (!GetFileAttributesExA(path.c_str(), GetFileExInfoStandard, &fileData))
 		return;
 
@@ -50,11 +79,16 @@ void makeLNK(DWORD linkflag, DWORD fileAttribute, std::string path,std::string L
 				break;
 			}
 		}
+		std::cout <<std::hex <<lti.Size<<"\n";
 		lti.add(new RootFolderShellItem());
 		lti.Write(writeLnk);
 		if (linkflag & HasLinkInfo) {
 			LinkInfo lnkinfo(path);
 			lnkinfo.Write(writeLnk);
+		}
+		if (linkflag & HasRelativePath) {
+			StringData rela(getRelativePath(std::filesystem::path(path), std::filesystem::path(LnkPath)).u16string());
+			rela.Write(writeLnk);
 		}
 	}
 	DWORD terminalBlockEx = 0;
