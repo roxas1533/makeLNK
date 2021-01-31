@@ -8,4 +8,4 @@ public:
 	LNK_HEADER lnkHeader;
 };
 
-void makeLNK(DWORD linkflag, DWORD fileAttribute, std::string path, std::string LnkPath);
+void makeLNK(DWORD fileAttribute, std::wstring path, std::wstring LnkPath);

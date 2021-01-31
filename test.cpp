@@ -3,5 +3,5 @@
 
 
 int main() {
-	makeLNK(HasLinkTargetIDList| HasLinkInfo| IsUnicode|HasRelativePath, FILE_ATTRIBUTE_SYSTEM, "C:\\Users\\roxas1533\\source\\repos\\roxas1533\\DesktopMascot\\Release\\trans.txt","temp.Lnk");
+	makeLNK(FILE_ATTRIBUTE_SYSTEM, L"C:\\desktop\\LT—p\\farm.png",L"temp.Lnk");
 }

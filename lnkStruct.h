@@ -13,12 +13,7 @@
 #define HasIconLocation 0x40
 #define IsUnicode 0x80
 
-#define FILE_ATTRIBUTE_READONLY 0x1
-#define FILE_ATTRIBUTE_HIDDEN 0x2
-#define FILE_ATTRIBUTE_SYSTEM 0x4
-#define FILE_ATTRIBUTE_DIRECTORY 0x10
 #define HasArguments 0x20
-#define FILE_ATTRIBUTE_ARCHIVE 0x40
 
 
 typedef struct _LNK_HEADER {
@@ -134,12 +129,11 @@ public:
 	DWORD LocalBasePathOffsetUnicode;
 	DWORD CommonPathSuffixOffsetUnicode;
 	VolumeID vol;
-	std::string LocalBasePath;
+	std::wstring LocalBasePath;
 	char CommonPathSuffix = '\0';
-	LinkInfo(std::string path);
+	LinkInfo(std::wstring path);
 	int Write(std::ofstream& ifs) override;
 };
-
 class StringData :public LnkObject {
 public:
 	WORD CountCharacters;

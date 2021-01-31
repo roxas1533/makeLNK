@@ -4,40 +4,25 @@
 #include <filesystem>
 
 std::filesystem::path getRelativePath(std::filesystem::path p, std::filesystem::path n) {
-	//std::cout << <<"\n";
-	//std::filesystem::path copyN = n;
-	//std::stack<std::string> cp;
-	//std::stack<std::string> cn;
-	//std::string relativePath="";
-	//std::string basePath = "";
-	//for (;p.root_path().string()!=p.string();) {
-	//	cp.push(p.filename().string());
-	//	p = p.parent_path();
-	//}
-	//cp.push(p.root_name().string());
-	//for (; n.root_path().string() != n.string();) {
-	//	cn.push(n.filename().string());
-	//	n = n.parent_path();
-	//}
-	//cn.push(n.root_name().string());
-	//for (; cp.top() == cn.top();  basePath += cp.top() + "\\",cp.pop(), cn.pop());
-	//basePath.erase(--basePath.end());
-	//std::cout << copyN.string()<<"\n";
-	//std::cout << basePath <<"\n";
-	//std::cout << std::filesystem::relative(std::filesystem::path(basePath), copyN).string();
-	////for(;!cp.empty(); relativePath += cp.top() + "\\",cp.pop());
-	////relativePath.erase(--relativePath.end());
 	return std::filesystem::relative(p, n);
 }
-void makeLNK(DWORD linkflag, DWORD fileAttribute, std::string path,std::string LnkPath) {
+void makeLNK(DWORD fileAttribute, std::wstring path,std::wstring LnkPath) {
+	std::wcout.imbue(std::locale(""));
+	DWORD linkflag= HasLinkTargetIDList | HasLinkInfo | IsUnicode | HasRelativePath;
 	WIN32_FILE_ATTRIBUTE_DATA fileData;
 	if (!std::filesystem::path(LnkPath).is_absolute()) {
 		char dir[MAX_PATH];
 		GetCurrentDirectoryA(MAX_PATH, dir);
-		LnkPath=std::string(std::string(dir)+"\\"+LnkPath);
+		LnkPath=std::wstring(std::filesystem::current_path().wstring()+L"\\"+LnkPath);
 	}
-	if (!GetFileAttributesExA(path.c_str(), GetFileExInfoStandard, &fileData))
+	std::wcout << LnkPath << "\n";
+	std::wcout << path << "\n";
+
+	if (!GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &fileData)) {
+		std::cout << "ƒGƒ‰[>>"<<GetLastError();
 		return;
+
+	}
 
 	LnkClass newLnk;
 	newLnk.lnkHeader.headerSize = 0x0000004C;
@@ -63,12 +48,9 @@ void makeLNK(DWORD linkflag, DWORD fileAttribute, std::string path,std::string L
 		std::filesystem::path pathParse(path);
 		for (;;) {
 			GetFileAttributesExA(pathParse.string().c_str(), GetFileExInfoStandard, &fileData);
-			std::string aa = pathParse.filename().string();
-			aa += '\0';
-			//TODO TimetoFat‚Ìì¬
+			std::string aa = pathParse.filename().string()+ '\0';
 
 			FileEntryItem* FEI = new FileEntryItem((BYTE)(pathParse.has_extension() ? 0x32 : 0x31), fileData.nFileSizeLow, fileData,(WORD)fileData.dwFileAttributes,aa);
-			
 
 			pathParse = pathParse.parent_path();
 			lti.add(FEI);

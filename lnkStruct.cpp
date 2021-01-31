@@ -66,7 +66,6 @@ FileSize(F), lastModify(TimeToFat(l.ftLastWriteTime)), atrribute(a), PrimaryName
     Size += PrimaryName.length();
     if (PrimaryName.length() % 2)
         Size ++;
-    //Size += ;
     Size += ex04.Size;
     ex04.offset = Size / 4;
 }
@@ -95,8 +94,6 @@ int FileEntryItem::Write(std::ofstream& ifs)
 
 
 Beef0004::Beef0004(FAT_DATE c, FAT_DATE l, std::string n) :createTime(c), lastAccess(l){
-    //std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-     //longStringName = convert.from_bytes(n);
     Size = 0;
     longStringName = n;
     longStringSize = 0;
@@ -180,10 +177,10 @@ int LinkInfo::Write(std::ofstream& ifs){
     ifs.write((char*)&CommonNetworkRelativeLinkOffset, sizeof(DWORD));
     ifs.write((char*)&CommonPathSuffixOffset, sizeof(DWORD));
     vol.Write(ifs);
-    const char* n = LocalBasePath.c_str();
+    const wchar_t* n = LocalBasePath.c_str();
     for (int i = 0; *(n + i) != '\0'; i++) {
-        char letter = *(n + i);
-        ifs.write((char*)&(letter), sizeof(letter));
+        wchar_t letter = *(n + i);
+        ifs.write((char*)&(letter), sizeof(char));
     }
     const char null = '\0';
     ifs.write((char*)&(null), sizeof(char));
@@ -191,7 +188,7 @@ int LinkInfo::Write(std::ofstream& ifs){
     return 0;
 }
 
-LinkInfo::LinkInfo(std::string path):LinkInfoHeaderSize(0x0000001C), vol(),LinkInfoFlags(1), VolumeIDOffset(0x1C),
+LinkInfo::LinkInfo(std::wstring path):LinkInfoHeaderSize(0x0000001C), vol(),LinkInfoFlags(1), VolumeIDOffset(0x1C),
 CommonNetworkRelativeLinkOffset(0), LocalBasePath(path), CommonPathSuffix('\0')
 {
     LocalBasePathOffset = (0x1C + vol.DSize);
