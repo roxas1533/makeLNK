@@ -16,5 +16,5 @@ public:
 	StringData* iconLocation;
 };
 
-void makeLNK(DWORD fileAttribute, std::filesystem::path path, std::filesystem::path LnkPath);
+void makeLNK(DWORD fileAttribute, std::filesystem::path path, std::filesystem::path LnkPath, std::filesystem::path workingDirectory);
 std::string loadLNKPath(std::filesystem::path path);
