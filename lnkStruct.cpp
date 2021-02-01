@@ -19,7 +19,6 @@ FAT_DATE TimeToFat(FILETIME& time) {
 int LinkTargetIDList::Write(std::ofstream& ifs)
 {
     Size += sizeof(TerminalID);
-    std::cout << Size<<"\n";
     ifs.write((char*)&Size, sizeof(Size));
     for (; !shellItem.empty();) {
         (shellItem.top())->Write(ifs);
@@ -205,6 +204,6 @@ StringData::StringData(std::u16string str):str(str)
 int StringData::Write(std::ofstream& ifs)
 {
     ifs.write((char*)&CountCharacters, sizeof(CountCharacters));
-    ifs.write((char*)str.c_str(), str.size()*2);
+    ifs.write((char*)str.c_str(), str.length());
     return 0;
 }

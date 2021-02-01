@@ -53,14 +53,47 @@ public:
 	int Write(std::ofstream& ifs) override;
 	int add(LnkObject* shellItem);
 };
-
+class Beef0026;
 class RootFolderShellItem :public LnkObject {
 public:
 	RootFolderShellItem();
 	BYTE Indicator=0x1F;
 	BYTE SortIndex=0x50;
 	GUID ShellFolder;
+	Beef0026* ex26;
 	int Write(std::ofstream& ifs) override;
+};
+class Beef0026 :public LnkObject {
+public:
+	WORD exVirsion;
+	DWORD exSignature;
+	DWORD unknown;
+	FILETIME create;
+	FILETIME lastModify;
+	FILETIME lastAccess;
+	WORD unknown2;
+	int Write(std::ofstream& ifs) override { return 0; };
+
+};
+
+class DelegateShellItem:public LnkObject {
+public:
+	BYTE indicator;
+	BYTE unknown1;
+	WORD delegateSize;
+	DWORD signature;
+	WORD dataSize;
+	BYTE subIndicator;
+	BYTE padding;
+	DWORD fileSize;
+	FAT_DATE lastModify;
+	WORD attributeFlags;
+	std::string fileName;
+	WORD anotherExBlock;
+	GUID exGUID;
+	GUID exGUID2;
+	int Write(std::ofstream& ifs) override { return 0; };
+
 };
 
 class VoluteShellItem :public LnkObject {
@@ -73,16 +106,16 @@ public:
 class Beef0004 :public LnkObject {
 public:
 	WORD exVirsion = 9;
-	const DWORD signature = 0xbeef0004;
+	DWORD signature = 0xbeef0004;
 	FAT_DATE createTime;
 	FAT_DATE lastAccess;
 	WORD Virsion = 0x2e;
-	const WORD padding = 0;
-	const UINT64 NTFSfile = 0;
-	const UINT64 padding2 = 0;
+	WORD padding = 0;
+	UINT64 NTFSfile = 0;
+	UINT64 padding2 = 0;
 	WORD longStringSize;
 	DWORD padding3 = 0;
-	const DWORD unknown = 0;
+	DWORD unknown = 0;
 	std::string longStringName;
 	WORD offset;
 	int Write(std::ofstream& ifs) override;
@@ -103,6 +136,8 @@ public:
 
 	int Write(std::ofstream& ifs) override;
 };
+
+
 FAT_DATE TimeToFat(FILETIME& time);
 
 

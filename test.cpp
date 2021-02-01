@@ -1,7 +1,6 @@
 #include <iostream>
 #include "LnkClass.h"
-
+#include <fileSystem>
 
 int main() {
-	makeLNK(FILE_ATTRIBUTE_SYSTEM, L"C:\\desktop\\LT—p\\farm.png",L"temp.Lnk");
 }

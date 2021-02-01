@@ -5,7 +5,16 @@
 #include <iostream>
 class LnkClass{
 public:
+	LnkClass();
 	LNK_HEADER lnkHeader;
+	LinkTargetIDList linkTargetIdList;
+	LinkInfo* lnkInfo;
+	StringData* nameString;
+	StringData* relativePath;
+	StringData* workingDir;
+	StringData* commandLineArguments;
+	StringData* iconLocation;
 };
 
-void makeLNK(DWORD fileAttribute, std::wstring path, std::wstring LnkPath);
+void makeLNK(DWORD fileAttribute, std::filesystem::path path, std::filesystem::path LnkPath);
+std::string loadLNKPath(std::filesystem::path path);
