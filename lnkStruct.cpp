@@ -204,6 +204,6 @@ StringData::StringData(std::u16string str):str(str)
 int StringData::Write(std::ofstream& ifs)
 {
     ifs.write((char*)&CountCharacters, sizeof(CountCharacters));
-    ifs.write((char*)str.c_str(), str.length());
+    ifs.write((char*)str.c_str(), str.length() * 2);
     return 0;
 }
